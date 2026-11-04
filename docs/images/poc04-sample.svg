@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+  <rect width="1000" height="560" rx="14" fill="#111827"/>
+  <path d="M14 0h972a14 14 0 0 1 14 14v36H0V14A14 14 0 0 1 14 0Z" fill="#1f2937"/>
+  <circle cx="24" cy="24" r="6" fill="#f87171"/><circle cx="46" cy="24" r="6" fill="#fbbf24"/><circle cx="68" cy="24" r="6" fill="#34d399"/>
+  <text x="500" y="29" text-anchor="middle" fill="#d1d5db" font-family="Consolas, monospace" font-size="15">POC 04 — tool call vs saved history (illustrative sample)</text>
+  <g fill="#e5e7eb" font-family="Consolas, monospace" font-size="15">
+    <text x="28" y="82" fill="#93c5fd">$ uv run python poc04_langchain_tool_memory.py</text>
+    <text x="28" y="112" fill="#a7f3d0">POC 04: LangChain Tool History Limitation</text>
+    <text x="28" y="140">You: Use hello_world to greet Mukul.</text>
+    <text x="28" y="168">Assistant: Hello, Mukul!</text>
+    <text x="28" y="204" fill="#fcd34d">Tools called:</text>
+    <text x="48" y="230">- hello_world: Hello, Mukul!</text>
+    <text x="28" y="270" fill="#fcd34d">Messages saved in chat history:</text>
+    <text x="48" y="296">HumanMessage: Use hello_world to greet Mukul.</text>
+    <text x="48" y="322">AIMessage: Hello, Mukul!</text>
+    <text x="28" y="356">ToolMessage saved: False</text>
+    <text x="28" y="396">You: What is 2 + 2?</text>
+    <text x="28" y="424">Assistant: 4</text>
+    <text x="28" y="460" fill="#fcd34d">Tools called: none</text>
+    <text x="28" y="500" fill="#9ca3af">The agent used a tool, but this history wrapper stored only the</text>
+    <text x="28" y="524" fill="#9ca3af">user input and final answer. This is a pattern limitation, not all</text>
+    <text x="28" y="548" fill="#9ca3af">of LangChain; POC 10 shows LangGraph thread-state persistence.</text>
+  </g>
+</svg>

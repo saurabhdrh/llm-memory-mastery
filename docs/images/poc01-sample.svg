@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="470" viewBox="0 0 1000 470">
+  <rect width="1000" height="470" rx="14" fill="#111827"/>
+  <path d="M14 0h972a14 14 0 0 1 14 14v36H0V14A14 14 0 0 1 14 0Z" fill="#1f2937"/>
+  <circle cx="24" cy="24" r="6" fill="#f87171"/><circle cx="46" cy="24" r="6" fill="#fbbf24"/><circle cx="68" cy="24" r="6" fill="#34d399"/>
+  <text x="500" y="29" text-anchor="middle" fill="#d1d5db" font-family="Consolas, monospace" font-size="15">POC 01 — no memory (illustrative sample)</text>
+  <g fill="#e5e7eb" font-family="Consolas, monospace" font-size="16">
+    <text x="28" y="82" fill="#93c5fd">$ uv run python poc01_no_memory.py</text>
+    <text x="28" y="112" fill="#a7f3d0">POC 01: No Memory</text>
+    <text x="28" y="145">Turn 1: User</text>
+    <text x="48" y="169">Hi! My name is Mukul and I work on OLMS.</text>
+    <text x="28" y="201">Turn 1: AI</text>
+    <text x="48" y="225">Nice to meet you, Mukul! How can I help?</text>
+    <text x="28" y="263">Turn 2: User</text>
+    <text x="48" y="287">What is my name and which project do I work on?</text>
+    <text x="28" y="319">Turn 2: AI</text>
+    <text x="48" y="343">I don't know from this message alone.</text>
+    <text x="28" y="381" fill="#fcd34d">Lesson: each model call is independent; no earlier message is passed in.</text>
+    <text x="28" y="425" fill="#9ca3af">Do you want to ask a follow-up question? (y/n): n</text>
+    <text x="28" y="449" fill="#9ca3af">Ending POC 01 interactive chat.</text>
+  </g>
+</svg>

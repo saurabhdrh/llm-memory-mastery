@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="470" viewBox="0 0 1000 470">
+  <rect width="1000" height="470" rx="14" fill="#111827"/>
+  <path d="M14 0h972a14 14 0 0 1 14 14v36H0V14A14 14 0 0 1 14 0Z" fill="#1f2937"/>
+  <circle cx="24" cy="24" r="6" fill="#f87171"/><circle cx="46" cy="24" r="6" fill="#fbbf24"/><circle cx="68" cy="24" r="6" fill="#34d399"/>
+  <text x="500" y="29" text-anchor="middle" fill="#d1d5db" font-family="Consolas, monospace" font-size="15">POC 02 — in-memory history (illustrative sample)</text>
+  <g fill="#e5e7eb" font-family="Consolas, monospace" font-size="16">
+    <text x="28" y="82" fill="#93c5fd">$ uv run python poc02_langchain_inmemory_history.py</text>
+    <text x="28" y="112" fill="#a7f3d0">POC 02: LangChain In-Memory Chat History</text>
+    <text x="28" y="136" fill="#9ca3af">Session ID: mukul-thread-1</text>
+    <text x="28" y="172">Turn 1: User</text>
+    <text x="48" y="196">My name is Mukul. I work on OLMS.</text>
+    <text x="28" y="228">Turn 1: AI</text>
+    <text x="48" y="252">Got it, Mukul. You work on OLMS.</text>
+    <text x="28" y="290">Turn 2: User</text>
+    <text x="48" y="314">What is my name and which project do I work on?</text>
+    <text x="28" y="346">Turn 2: AI</text>
+    <text x="48" y="370">Your name is Mukul, and you work on OLMS.</text>
+    <text x="28" y="408" fill="#fcd34d">Same session history is supplied to the model on the follow-up.</text>
+    <text x="28" y="444" fill="#9ca3af">Do you want to ask another question in the same session? (y/n): n</text>
+  </g>
+</svg>

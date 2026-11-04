@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+  <rect width="1000" height="560" rx="14" fill="#111827"/>
+  <path d="M14 0h972a14 14 0 0 1 14 14v36H0V14A14 14 0 0 1 14 0Z" fill="#1f2937"/>
+  <circle cx="24" cy="24" r="6" fill="#f87171"/><circle cx="46" cy="24" r="6" fill="#fbbf24"/><circle cx="68" cy="24" r="6" fill="#34d399"/>
+  <text x="500" y="29" text-anchor="middle" fill="#d1d5db" font-family="Consolas, monospace" font-size="15">POC 03 — SQLite thread history (illustrative sample)</text>
+  <g fill="#e5e7eb" font-family="Consolas, monospace" font-size="15">
+    <text x="28" y="82" fill="#93c5fd">$ uv run python poc03_langchain_db_history.py</text>
+    <text x="28" y="112" fill="#a7f3d0">POC 03: Persistent Multi-Thread Chat History</text>
+    <text x="28" y="136" fill="#9ca3af">Each session_id is a separate conversation thread.</text>
+    <text x="28" y="176">Thread thread_1: User — My name is Mukul. I work on OLMS.</text>
+    <text x="28" y="202">Thread thread_1: AI — Got it, Mukul. You work on OLMS.</text>
+    <text x="28" y="238">Thread thread_2: User — What is my name?</text>
+    <text x="28" y="264">Thread thread_2: AI — I don't know your name from this conversation.</text>
+    <text x="28" y="300">Thread thread_1: User — What is my name and which project do I work on?</text>
+    <text x="28" y="326">Thread thread_1: AI — Your name is Mukul, and you work on OLMS.</text>
+    <text x="28" y="370" fill="#fcd34d">Thread 1 stored messages:</text>
+    <text x="48" y="396">HumanMessage - My name is Mukul. I work on OLMS.</text>
+    <text x="48" y="422">AIMessage - Got it, Mukul. You work on OLMS.</text>
+    <text x="48" y="448">HumanMessage - What is my name and which project do I work on?</text>
+    <text x="48" y="474">AIMessage - Your name is Mukul, and you work on OLMS.</text>
+    <text x="28" y="514" fill="#fcd34d">SQLite stores separate raw message histories by session_id.</text>
+    <text x="28" y="544" fill="#9ca3af">Choose thread_1 or thread_2 at the interactive prompt to continue.</text>
+  </g>
+</svg>
