@@ -1,10 +1,12 @@
-import os
+from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_core.tools import tool
 # Import the built-in Wikipedia tools
 from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_groq import ChatGroq
+
+load_dotenv()
 
 # =====================================================================
 # 1. DEFINE A CUSTOM TOOL

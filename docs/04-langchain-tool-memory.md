@@ -44,7 +44,7 @@ From the project root, install dependencies and configure `GROQ_API_KEY` in
 
 ```bash
 uv sync
-uv run python "poc04_langchain_tool_manully_calling copy.py"
+uv run python poc04_langchain_tool_manully_calling.py
 ```
 
 The script sends two example prompts: one for the custom word-count tool and

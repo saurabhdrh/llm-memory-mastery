@@ -16,14 +16,14 @@ Large language models are stateless by default. To build useful assistants, we n
 
 This project walks through each concept in small, runnable proof-of-concepts (POCs) so the learning is clear and practical.
 
-The learning path starts with basic chat history, demonstrates the gap between running a tool and saving its result in POC 04, then builds up memory patterns before showing how LangGraph preserves tool messages in POC 10.
+The learning path starts with chat history and tool calls, then shows how LangGraph checkpoints tool messages, separates thread state from long-term user memory, and combines the two patterns.
 
 ## Prerequisites
 
 - Python 3.11
 - uv installed on your machine
-- A Groq API key
-- An OpenAI API key only for POC 06 embeddings
+- A Groq API key for LLM-backed POCs
+- OpenAI API key is not required by the current POCs
 
 ## Create a GitHub repo
 
@@ -64,7 +64,6 @@ Then edit `.env` and add your keys:
 
 ```env
 GROQ_API_KEY=your_groq_api_key
-OPENAI_API_KEY=your_openai_api_key
 ```
 
 ## Run each POC with uv
@@ -76,13 +75,15 @@ uv run python poc01_no_memory.py
 uv run python poc02_langchain_inmemory_history.py
 uv run python poc03_langchain_db_history.py
 uv run python poc04_langchain_tool_manully_calling.py
-uv run python poc05_auto_long_term_memory.py
-uv run python poc06_relevant_memory_retrieval.py
-uv run python poc07_langgraph_saver.py
-uv run python poc08_langgraph_store.py
-uv run python poc09_langgraph_hybrid_memory.py
-uv run python poc10_langgraph_tool_memory.py
-uv run python poc11_production_hybrid_agent.py
+uv run python poc05_langchain_tool_via_create_agent.py
+uv run python poc06_langchain_tool__human_in_loop_langgraph_inmemorysaver.py
+uv run python poc07_langgraph_inmemory_saver_tool_messages.py
+uv run python poc08_langgraph_sqlite_saver_tool_messages.py
+uv run python poc09_langgraph_inmemory_store.py
+uv run python poc10_sqlite_long_term_memory_custom_store.py
+uv run python poc11_langgraph_hybrid_inmemory.py
+uv run python poc12_hybrid_sqlite_memory.py "Remember: I prefer Python." --user-id learner-1 --thread-id chat-a
+uv run python poc13_langmem_agent_managed_memory.py
 ```
 
 ## POCs 01–04: example runs
@@ -134,7 +135,7 @@ Messages are stored in `chat_history.db`. Note: this demo clears `thread_1` and 
 
 ### POC 04 — manually executing custom and built-in tools
 
-Run `uv run python "poc04_langchain_tool_manully_calling copy.py"`. The script
+Run `uv run python poc04_langchain_tool_manully_calling.py`. The script
 asks the Groq model to choose between a custom word-count tool and the built-in
 LangChain Wikipedia tool.
 
@@ -155,12 +156,11 @@ execution flow, sample output, and limitations.
 
 ### POC 05 — automatic tool execution with `create_agent()`
 
-Run `uv run python "poc05_langchain_tool_via_create_agent copy.py"`. This POC
+Run `uv run python poc05_langchain_tool_via_create_agent.py`. This POC
 uses LangChain's `create_agent()` with the same custom word-count and Wikipedia
 tools as POC 04. The agent handles the request → tool execution → result →
 model loop automatically and returns the final answer to the application.
-Make sure `GROQ_API_KEY` is available in the process environment; this script
-does not load `.env` itself.
+Set `GROQ_API_KEY` in `.env`; this script loads it with `load_dotenv()`.
 
 [Read the POC 05 guide](docs/05-langchain-create-agent.md) for the execution
 flow, comparison with POC 04, sample output, and limitations.
@@ -174,6 +174,77 @@ LangGraph's `InMemorySaver` checkpoint and `Command(resume=...)`.
 
 [Read the POC 06 guide](docs/06-langgraph-human-in-the-loop.md) for the
 approval, checkpoint, and resumption flow, plus limitations.
+
+### POC 07 — in-memory checkpoints and tool messages
+
+Run `uv run python poc07_langgraph_inmemory_saver_tool_messages.py`. This
+continues a tool-using agent in one thread, then inspects its saved
+`ToolMessage` state. `InMemorySaver` loses state when the process exits.
+
+[Read the POC 07 guide](docs/07-langgraph-inmemory-saver-tool-messages.md)
+for how the agent adds tool results to state and how the checkpointer saves
+that state.
+
+### POC 08 — SQLite checkpoints and tool messages
+
+Run `uv run python poc08_langgraph_sqlite_saver_tool_messages.py`. It uses
+LangGraph's SQLite checkpointer so thread state can survive a process
+restart. Use the same `thread_id` and database file to continue the thread.
+
+[Read the POC 08 guide](docs/08-langgraph-sqlite-saver-tool-messages.md) for
+the storage flow, setup, and limitations.
+
+### POC 09 — LangGraph `InMemoryStore`
+
+Run `uv run python poc09_langgraph_inmemory_store.py`. It saves and reads
+user-scoped facts using namespaces, without requiring an LLM or API key.
+
+[Read the POC 09 guide](docs/09-langgraph-inmemory-store.md) for how
+cross-thread long-term memory differs from checkpointed chat history.
+
+### POC 10 — SQLite long-term memory
+
+Run `uv run python poc10_sqlite_long_term_memory_custom_store.py`. The
+example uses LangGraph's `SqliteStore` to persist namespaced facts across
+restarts, in the same `put()` / `search()` style as POC 09's `InMemoryStore`.
+
+[Read the POC 10 guide](docs/10-sqlite-long-term-memory-custom-store.md) for
+the implementation and its limits.
+
+### POC 11 — hybrid in-memory memory
+
+Run `uv run python poc11_langgraph_hybrid_inmemory.py`. It combines
+`InMemorySaver` for one conversation's state with `InMemoryStore` for facts
+shared across two threads belonging to the same user.
+
+[Read the POC 11 guide](docs/11-langgraph-hybrid-inmemory.md) for the two
+memory scopes and how they fit together.
+
+### POC 12 — hybrid SQLite memory and production path
+
+Run the built-in save-and-recall example across two threads:
+
+```bash
+uv run python poc12_hybrid_sqlite_memory.py
+```
+
+This combines LangGraph's durable SQLite checkpointer and `SqliteStore` for
+thread state and user facts. The script runs a save in `chat-a` and reads the
+fact in `chat-b` without requiring command-line arguments. It is still a
+local learning sample, not production-ready.
+
+[Read the POC 12 guide](docs/12-hybrid-sqlite-memory.md) for production
+architecture requirements and a migration direction.
+
+### POC 13 — agent-managed memory with LangMem
+
+Run `uv run python poc13_langmem_agent_managed_memory.py`. The agent gets
+LangMem tools to decide when to save and search long-term user memories,
+instead of the application hard-coding those decisions for each turn. The
+example uses an in-memory store, so its memories are lost on process exit.
+
+[Read the POC 13 guide](docs/13-langmem-agent-managed-memory.md) for what
+LangMem automates, what developers still own, and the limitations.
 
 ## Project structure
 
@@ -191,13 +262,13 @@ llm-memory-mastery/
 │   ├── 04-langchain-tool-memory.md
 │   ├── 05-langchain-create-agent.md
 │   ├── 06-langgraph-human-in-the-loop.md
-│   ├── 05-auto-long-term-memory.md
-│   ├── 06-relevant-memory-retrieval.md
-│   ├── 07-langgraph-saver.md
-│   ├── 08-langgraph-store.md
-│   ├── 09-langgraph-hybrid-memory.md
-│   ├── 10-langgraph-tool-memory.md
-│   ├── 11-production-hybrid-agent.md
+│   ├── 07-langgraph-inmemory-saver-tool-messages.md
+│   ├── 08-langgraph-sqlite-saver-tool-messages.md
+│   ├── 09-langgraph-inmemory-store.md
+│   ├── 10-sqlite-long-term-memory-custom-store.md
+│   ├── 11-langgraph-hybrid-inmemory.md
+│   ├── 12-hybrid-sqlite-memory.md
+│   ├── 13-langmem-agent-managed-memory.md
 │   └── images/
 │       ├── poc01-sample.svg
 │       ├── poc02-sample.svg
@@ -206,15 +277,16 @@ llm-memory-mastery/
 ├── poc01_no_memory.py
 ├── poc02_langchain_inmemory_history.py
 ├── poc03_langchain_db_history.py
-├── poc04_langchain_tool_memory.py
-├── poc05_auto_long_term_memory.py
-├── poc06_relevant_memory_retrieval.py
-├── poc07_langgraph_saver.py
-├── poc08_langgraph_store.py
-├── poc09_langgraph_hybrid_memory.py
-├── poc10_langgraph_tool_memory.py
-├── poc11_production_hybrid_agent.py
-└── chat_history.db
+├── poc04_langchain_tool_manully_calling.py
+├── poc05_langchain_tool_via_create_agent.py
+├── poc06_langchain_tool__human_in_loop_langgraph_inmemorysaver.py
+├── poc07_langgraph_inmemory_saver_tool_messages.py
+├── poc08_langgraph_sqlite_saver_tool_messages.py
+├── poc09_langgraph_inmemory_store.py
+├── poc10_sqlite_long_term_memory_custom_store.py
+├── poc11_langgraph_hybrid_inmemory.py
+├── poc12_hybrid_sqlite_memory.py
+└── poc13_langmem_agent_managed_memory.py
 ```
 
 ## Learning roadmap
@@ -227,11 +299,13 @@ llm-memory-mastery/
 | 04 | Manual tool execution | Explicit tool dispatch and result handoff | Understand the application-managed tool loop |
 | 05 | Automatic tool execution | LangChain `create_agent()` loop | Let the agent run tools and return their results |
 | 06 | Human-in-the-loop tools | Approve or reject tool calls | Add user control before tool execution |
-| 07 | LangGraph Saver | Workflow memory | Reset state across a task workflow |
-| 08 | LangGraph Store | Cross-thread long-term memory | Store facts across workflows |
-| 09 | Hybrid memory | Saver + Store | Combine thread and durable memory |
-| 10 | LangGraph tool memory | ToolMessage persistence | Keep tools and workflow in the thread |
-| 11 | Production hybrid agent | End-to-end design | Real-world memory architecture |
+| 07 | In-memory checkpointer | Tool messages in thread state | See what the saver stores |
+| 08 | SQLite checkpointer | Durable thread state | Continue after a restart |
+| 09 | In-memory store | User-scoped facts | Share facts across threads |
+| 10 | LangGraph SQLite Store | Durable key-value memory | Persist namespaced facts across restarts |
+| 11 | Hybrid in-memory | Checkpointer + Store | Separate thread and user memory |
+| 12 | Hybrid SQLite | Durable local thread + user memory | Understand production upgrades |
+| 13 | LangMem | Agent-managed memory tools | Reduce hand-written save/search decisions |
 
 ## Memory types
 
@@ -242,8 +316,9 @@ llm-memory-mastery/
 | Long-term memory | InMemoryStore or database store | Reused facts like name/project |
 | Relevant memory retrieval | Semantic search over stored memories | Fast recall of useful facts |
 | Workflow memory | LangGraph checkpointer (Saver) | Multi-step agent state |
-| Tool memory | ToolMessage + thread state in LangGraph | Preserve tool calls and results for later turns |
-| Hybrid memory | Saver + Store together | Production assistants |
+| Tool memory | ToolMessage in checkpointed graph state | Preserve tool calls and results in a thread |
+| Hybrid memory | Checkpointer + Store | Combine conversation state and user facts |
+| Agent-managed memory | LangMem tools over a Store | Delegate routine create/update/search choices to the agent |
 
 ## Core memory flow
 
@@ -286,6 +361,9 @@ Final answer to user
 
 - Re-run the same thread ID when testing memory persistence.
 - Keep the thread ID constant across turns to see memory behavior.
+- `InMemorySaver` and `InMemoryStore` are cleared when the process exits.
+- Use a checkpointer for thread state and a Store for cross-thread facts; a
+  Store does not automatically save tool messages.
 
 ### uv issues
 

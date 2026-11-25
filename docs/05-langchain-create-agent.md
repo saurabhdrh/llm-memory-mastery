@@ -34,15 +34,16 @@ tools, starts the agent invocation, and decides what output to display.
 ## How to Run
 
 From the project root, install the project dependencies and make the Groq API
-key available as `GROQ_API_KEY` in the environment, then run:
+key available as `GROQ_API_KEY` in `.env`, then run:
 
 ```bash
 uv sync
-uv run python "poc05_langchain_tool_via_create_agent copy.py"
+uv run python poc05_langchain_tool_via_create_agent.py
 ```
 
-The script sends two example prompts: one asks Wikipedia about Alan Turing,
-and one asks for a word count. The Wikipedia tool requires network access.
+The script loads `.env` with `load_dotenv()` and sends two example prompts:
+one asks Wikipedia about Alan Turing, and one asks for a word count. The
+Wikipedia tool requires network access.
 
 ## Sample Output
 
