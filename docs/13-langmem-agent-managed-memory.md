@@ -64,6 +64,25 @@ find it in the second thread. Wording and whether the model follows its tool
 instructions can vary. If no memory was saved, the script raises a clear
 error instead of claiming success.
 
+## Test data
+
+The script sends a save request in one thread:
+
+```text
+Remember that I prefer concise Python explanations.
+```
+
+It then asks in a second thread:
+
+```text
+How should you explain Python concepts to me? Search my saved memories first.
+```
+
+Verify that the output shows the memory-management tool result, the assistant
+response, and the stored item in the `learner-1` namespace. The exact tool
+calls and wording depend on the model. The store is in memory, so it is
+cleared when the script exits.
+
 ## What changed for the developer?
 
 Without LangMem, application code commonly needs to:

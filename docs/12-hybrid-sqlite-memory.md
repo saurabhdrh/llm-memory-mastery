@@ -29,6 +29,20 @@ Rerunning the script continues the same threads and reads/writes the same
 user fact. The thread database and the user-facts database are intentionally
 separate because they have different retention and access requirements.
 
+## Test data
+
+No command-line arguments are required. The script runs:
+
+| Thread | Prompt |
+| --- | --- |
+| `chat-a` | `Remember: I prefer Python.` |
+| `chat-b` | `What language do I prefer?` |
+
+Verify that `chat-b` recalls the preference, that both thread histories are
+printed, and that the user fact appears in the long-term memory output. The
+database files are `poc12_threads.db` and `poc12_user_facts.db`; rerunning the
+script should preserve the saved state.
+
 ## This is not production-ready
 
 The Python example is a local architecture demonstration. A production

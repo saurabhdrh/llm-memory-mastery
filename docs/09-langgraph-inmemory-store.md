@@ -32,6 +32,20 @@ uv run python poc09_langgraph_inmemory_store.py
 
 Two facts are printed for `learner-1`, and no facts are found for `learner-2`.
 
+## Test data
+
+No user input is required. The script writes these values into
+`("learner-1", "profile")`:
+
+| Key | Fact |
+| --- | --- |
+| `learning-goal` | `I am learning LangGraph memory.` |
+| `preferred-language` | `I prefer Python examples.` |
+
+Verify that both facts print for `learner-1` and that the search for
+`learner-2` returns `0 found`. Run it again to see that this in-memory store
+starts empty in a new process.
+
 ## Limitations
 
 - `InMemoryStore` is volatile and is empty after a process restart.

@@ -65,6 +65,19 @@ response should report three words. For the Wikipedia prompt, the agent should
 use the Wikipedia tool and produce a summary; the exact text depends on the
 tool result and model response.
 
+## Test data
+
+The script automatically sends:
+
+```text
+Summarise who Alan Turing was based on Wikipedia data.
+Count how many words are in this string: 'LangChain automation rocks!'
+```
+
+The first prompt should use Wikipedia and return a summary. The second should
+use `calculate_word_count` and report **3 words**. Model wording and live
+Wikipedia content can vary.
+
 ## Lessons Learned
 
 - `create_agent()` provides an execution loop around tool-enabled model calls.
@@ -86,8 +99,8 @@ tool result and model response.
   change over time.
 - Model and tool errors are not handled with custom retries or recovery logic
   in this small demo.
-- The API key must be available in the process environment; this script does
-  not load a `.env` file itself.
+- The API key must be available in the process environment. The script calls
+  `load_dotenv()` to load `GROQ_API_KEY` from `.env` when present.
 
 ## What the Next POC Solves
 

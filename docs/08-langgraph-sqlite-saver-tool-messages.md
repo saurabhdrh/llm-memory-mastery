@@ -40,6 +40,21 @@ The program prints the saved thread's `ToolMessage` entries and the location
 of the checkpoint database. With the same database and thread ID, earlier
 messages remain available to the agent in later runs.
 
+## Test data
+
+The script sends these two prompts in order:
+
+```text
+Use the word-count tool for this exact text: SQLite keeps tool results.
+What exact word count did the tool return?
+What exact word count did the tool return?
+```
+
+The sentence has **4 words**. Verify that the output includes the tool result,
+the checkpoint and write counts, and the database path
+(`poc08_checkpoints.db`). The model must call the tool for a `ToolMessage` to
+be present.
+
 ## Limitations
 
 - SQLite is suitable for local learning and small single-machine uses; it is

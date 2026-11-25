@@ -38,6 +38,19 @@ that fact even though it has a different `thread_id`. At the end, the script
 prints each thread's checkpointed messages and the user's long-term facts
 from the store.
 
+## Test data
+
+The script runs the following conversation turns for `learner-1`:
+
+| Thread | Prompt |
+| --- | --- |
+| `chat-a` | `Remember: I am learning LangGraph memory.` |
+| `chat-b` | `What do you know about my learning goal?` |
+
+Verify that `chat-b` retrieves the fact saved by `chat-a`, and that the
+printed short-term messages remain separate by thread. The store and
+checkpointer are both in memory, so a fresh process starts over.
+
 ## Limitations
 
 - Both memory layers are volatile and disappear when the process exits.

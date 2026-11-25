@@ -29,6 +29,20 @@ updates the same two keys on each run rather than creating duplicate entries.
 The same two user facts appear on each run. Saving a fact under an existing
 key updates that value instead of creating a duplicate row.
 
+## Test data
+
+No user input is required. The script writes the following values into
+`("learner-1", "profile")`:
+
+| Key | Fact |
+| --- | --- |
+| `learning-goal` | `I am learning LangGraph memory.` |
+| `preferred-language` | `I prefer Python examples.` |
+
+Verify that the output lists both facts, reports `0 found` for `learner-2`,
+and prints the `poc10_long_term_memory.db` path. Run it a second time to
+confirm the same facts remain in the SQLite store.
+
 ## Limitations
 
 - Semantic search is disabled unless an embedding/index configuration is

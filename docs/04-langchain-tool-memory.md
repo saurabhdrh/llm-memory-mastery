@@ -79,6 +79,20 @@ For each prompt, expect either:
 For the word-count prompt, the sentence has seven words. Wikipedia results
 depend on the live service and may change.
 
+## Test data
+
+The script sends these prompts automatically:
+
+```text
+Count the words in this sentence: Manual tool binding gives you full control.
+Search Wikipedia for information on Marie Curie.
+```
+
+The first sentence contains **7 words**. The second prompt should request the
+`wikipedia` tool with a Marie Curie query; its result depends on Wikipedia
+availability. Watch the terminal output for the requested tool, arguments,
+execution result, and final answer.
+
 ## Lessons Learned
 
 - Tool binding exposes tool names and argument schemas to the model; it does

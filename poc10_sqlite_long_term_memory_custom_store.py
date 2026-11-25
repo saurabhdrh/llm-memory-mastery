@@ -28,7 +28,7 @@ def main() -> None:
         for item in store.search(namespace):
             print(f"- {item.key}: {item.value['fact']}")
 
-        other_user_items = store.search(("learner-1", "profile"))
+        other_user_items = store.search(("learner-2", "profile"))
         print("\nFacts for a different user:")
         print(f"- {len(other_user_items)} found")
 

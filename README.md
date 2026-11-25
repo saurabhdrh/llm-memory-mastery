@@ -82,11 +82,34 @@ uv run python poc08_langgraph_sqlite_saver_tool_messages.py
 uv run python poc09_langgraph_inmemory_store.py
 uv run python poc10_sqlite_long_term_memory_custom_store.py
 uv run python poc11_langgraph_hybrid_inmemory.py
-uv run python poc12_hybrid_sqlite_memory.py "Remember: I prefer Python." --user-id learner-1 --thread-id chat-a
+uv run python poc12_hybrid_sqlite_memory.py
 uv run python poc13_langmem_agent_managed_memory.py
+uv run streamlit run poc14_streamlit_langmem_sqlite_chatbot.py
 ```
 
-## POCs 01–04: example runs
+## POC inputs and outputs
+
+POCs 01–08 and 13–14 call Groq, so their exact assistant wording can vary.
+POCs 09–12 use fixed examples and run locally without an LLM call.
+
+| POC | Test input | Expected output / verification | Guide |
+| --- | --- | --- | --- |
+| 01 — No memory | `Hi! My name is Mukul and I work on OLMS.` then `What is my name and which project do I work on?` | Each model call is independent; the second may not recall the details. | [POC 01](docs/01-no-memory.md) |
+| 02 — In-memory history | `My name is Mukul. I work on OLMS.` then `What is my name and which project do I work on?` | The same-session follow-up can use the first turn; memory ends with the process. | [POC 02](docs/02-langchain-inmemory-history.md) |
+| 03 — SQLite chat history | In `thread_1`: `My name is Mukul. I work on OLMS.`; in `thread_2`: `What is my name?`; then ask about the name and project in `thread_1`. | The two threads have separate histories, printed from `chat_history.db`. | [POC 03](docs/03-langchain-db-history.md) |
+| 04 — Manual tools | `Count the words in this sentence: Manual tool binding gives you full control.`; `Search Wikipedia for information on Marie Curie.` | Prints requested tool and arguments, execution result, and final model answer. | [POC 04](docs/04-langchain-tool-memory.md) |
+| 05 — Automatic tools | Ask for an Alan Turing Wikipedia summary, then count `LangChain automation rocks!`. | Agent runs tools automatically; word count is **3**. | [POC 05](docs/05-langchain-create-agent.md) |
+| 06 — Human approval | `Summarise who Alan Turing was based on Wikipedia data.` and count `LangChain automation rocks!`; approve/reject with `y`/`n`. | Shows tool request and arguments, then executes or rejects it before answering. | [POC 06](docs/06-langgraph-human-in-the-loop.md) |
+| 07 — In-memory checkpoint | `Use the word-count tool for this exact text: LangGraph saves tool messages.` then `What exact word count did the tool return?` | Prints a 4-word tool result and `ToolMessage` entries from the in-memory checkpoint. | [POC 07](docs/07-langgraph-inmemory-saver-tool-messages.md) |
+| 08 — SQLite checkpoint | `Use the word-count tool for this exact text: SQLite keeps tool results.` then `What exact word count did the tool return?` | Prints tool messages and checkpoint/write counts in `poc08_checkpoints.db`. | [POC 08](docs/08-langgraph-sqlite-saver-tool-messages.md) |
+| 09 — In-memory store | No typed input; saves `I am learning LangGraph memory.` and `I prefer Python examples.` for `learner-1`. | Prints both facts and `0 found` for `learner-2`; data is volatile. | [POC 09](docs/09-langgraph-inmemory-store.md) |
+| 10 — SQLite store | No typed input; saves the same two facts for `learner-1`. | Prints facts, `0 found` for `learner-2`, and `poc10_long_term_memory.db`. | [POC 10](docs/10-sqlite-long-term-memory-custom-store.md) |
+| 11 — Hybrid in-memory | `Remember: I am learning LangGraph memory.` in `chat-a`, then ask about the learning goal in `chat-b`. | Prints separate thread messages and the shared user fact; both layers are volatile. | [POC 11](docs/11-langgraph-hybrid-inmemory.md) |
+| 12 — Hybrid SQLite | `Remember: I prefer Python.` in `chat-a`, then `What language do I prefer?` in `chat-b`. | Prints thread messages and the stored fact; state persists in two SQLite files. | [POC 12](docs/12-hybrid-sqlite-memory.md) |
+| 13 — LangMem | `Remember that I prefer concise Python explanations.` then `How should you explain Python concepts to me? Search my saved memories first.` | Prints LangMem tool results and the in-memory stored item. | [POC 13](docs/13-langmem-agent-managed-memory.md) |
+| 14 — Streamlit chatbot | Type the short-term, thread-isolation, and long-term prompts in the browser. | Verify chat checkpoints, tool activity, and memories in the sidebar; SQLite persists both layers. | [POC 14](docs/14-streamlit-langmem-sqlite-chatbot.md) |
+
+## Detailed POC runs
 
 These are illustrative terminal examples to help you know what to type and what to look for. They are not recordings from a live API call, so model wording and tool choices can differ when you run them.
 
@@ -246,6 +269,96 @@ example uses an in-memory store, so its memories are lost on process exit.
 [Read the POC 13 guide](docs/13-langmem-agent-managed-memory.md) for what
 LangMem automates, what developers still own, and the limitations.
 
+### POC 14 — Streamlit chatbot with persistent LangMem memory
+
+Set `GROQ_API_KEY` in `.env`, then run:
+
+```bash
+uv run streamlit run poc14_streamlit_langmem_sqlite_chatbot.py
+```
+
+The browser UI keeps the current conversation in `SqliteSaver` and LangMem
+facts in `SqliteStore`. Use **Start a new chat** to create a separate thread;
+long-term memories are shared for the demo user. The app creates
+`poc14_threads.db` and `poc14_memories.db` in the project directory.
+
+#### Test data
+
+##### 1. Short-term memory in one thread
+
+Click **Start a new chat**, then enter these messages in order:
+
+   ```text
+   For this conversation only, my temporary code is TMP-7429. Do not save it as a long-term memory.
+   ```
+
+   ```text
+   What was my temporary code in this chat?
+   ```
+
+   **Verify:** the assistant recalls `TMP-7429` in this thread. Check the
+   sidebar to confirm the temporary code was not added to long-term memories.
+
+##### 2. Thread isolation
+
+Click **Start a new chat** again, then enter:
+
+   ```text
+   What temporary code did I use in another chat? Don't guess; check my saved memories.
+   ```
+
+   **Verify:** it should not recall `TMP-7429` from the previous thread unless
+   that code was saved as a long-term memory.
+
+##### 3. Long-term memory across threads
+
+In the chat, enter:
+
+   ```text
+   Please save this stable preference: I prefer concise explanations with Python examples.
+   ```
+
+   **Verify:** the assistant confirms saving it, LangMem tool activity is
+   visible below the reply, and the preference appears in the sidebar's
+   **Long-term memories** list.
+
+Click **Start a new chat**, then enter:
+
+   ```text
+   How should you explain Python concepts to me? Search my saved memories first.
+   ```
+
+   **Verify:** the new thread retrieves the preference and the tool activity
+   shows a memory search.
+
+##### 4. Checkpoint persistence after restart
+
+In the default chat (before clicking **Start a new chat**), enter:
+
+   ```text
+   For this chat only, my checkpoint test phrase is blue lantern 58. Do not save it as a long-term memory.
+   ```
+
+Stop and restart the app, then enter:
+
+   ```text
+   What was my checkpoint test phrase in this chat?
+   ```
+
+   **Verify:** the default thread can recall the phrase from its checkpoint,
+   while the sidebar shows the separate long-term preference. The checkpoint
+   database is `poc14_threads.db`; long-term memories are in
+   `poc14_memories.db`.
+
+Assistant wording and whether the model follows tool instructions can vary.
+The sidebar is the source to verify what is actually stored. The app uses the
+same demo user ID for every chat, so **Start a new chat** creates a new thread,
+not a separate user.
+
+[Read the POC 14 guide](docs/14-streamlit-langmem-sqlite-chatbot.md) for
+the storage details, test data, and limitations. It builds on the in-memory
+LangMem pattern in [POC 13](docs/13-langmem-agent-managed-memory.md).
+
 ## Project structure
 
 ```text
@@ -269,6 +382,7 @@ llm-memory-mastery/
 │   ├── 11-langgraph-hybrid-inmemory.md
 │   ├── 12-hybrid-sqlite-memory.md
 │   ├── 13-langmem-agent-managed-memory.md
+│   ├── 14-streamlit-langmem-sqlite-chatbot.md
 │   └── images/
 │       ├── poc01-sample.svg
 │       ├── poc02-sample.svg
@@ -286,7 +400,8 @@ llm-memory-mastery/
 ├── poc10_sqlite_long_term_memory_custom_store.py
 ├── poc11_langgraph_hybrid_inmemory.py
 ├── poc12_hybrid_sqlite_memory.py
-└── poc13_langmem_agent_managed_memory.py
+├── poc13_langmem_agent_managed_memory.py
+└── poc14_streamlit_langmem_sqlite_chatbot.py
 ```
 
 ## Learning roadmap
@@ -306,6 +421,7 @@ llm-memory-mastery/
 | 11 | Hybrid in-memory | Checkpointer + Store | Separate thread and user memory |
 | 12 | Hybrid SQLite | Durable local thread + user memory | Understand production upgrades |
 | 13 | LangMem | Agent-managed memory tools | Reduce hand-written save/search decisions |
+| 14 | Streamlit + LangMem + SQLite | Persistent chatbot memory | Test durable chat and user memories in a UI |
 
 ## Memory types
 

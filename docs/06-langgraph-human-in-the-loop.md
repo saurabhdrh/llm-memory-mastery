@@ -87,6 +87,21 @@ final answer is printed. After rejection, that tool is not executed and the
 agent responds based on the rejection. If the model does not request a tool,
 the workflow can complete without an approval prompt.
 
+## Test data
+
+The script runs these two requests automatically:
+
+```text
+Summarise who Alan Turing was based on Wikipedia data.
+Count how many words are in this string: 'LangChain automation rocks!'
+```
+
+At each `Execute this tool? (y/n):` prompt, enter `y` to approve the tool or
+`n` to reject it. To test both paths, approve the Wikipedia request with `y`
+and reject the word-count request with `n`. The second sentence contains
+**3 words**; when rejected, the tool must not run and the agent receives the
+rejection message. The final model wording may vary.
+
 ## Lessons Learned
 
 - Human approval can be inserted into an agent workflow without manually

@@ -47,6 +47,19 @@ The script prints the two turns and the `ToolMessage` found in the thread's
 current state. The follow-up can refer to the first result because both
 invocations use the same `thread_id`.
 
+## Test data
+
+The script sends these two prompts in order:
+
+```text
+Use the word-count tool for this exact text: LangGraph saves tool messages.
+What exact word count did the tool return?
+```
+
+The sentence has **4 words**. Verify that the output includes the assistant's
+answers and a `ToolMessage` with the tool result. If no `ToolMessage` appears,
+the model did not call the tool in that run.
+
 ## Limitations
 
 - `InMemorySaver` stores checkpoints only in this process. Restarting the

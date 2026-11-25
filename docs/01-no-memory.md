@@ -26,6 +26,24 @@ uv run python poc01_no_memory.py
 
 The script prints the first answer and then a second answer to a follow-up question. The second answer should not correctly remember the earlier fact unless memory is added.
 
+## Test data
+
+The script sends these two prompts automatically:
+
+```text
+Hi! My name is Mukul and I work on OLMS.
+What is my name and which project do I work on?
+```
+
+For an additional test, answer `y` at the follow-up prompt and ask:
+
+```text
+What did I tell you my name and project were?
+```
+
+Each prompt is a fresh model call. The model may say it does not know the
+details, but it can also guess; there is no chat history provided.
+
 ## Lesson
 
 An LLM call is stateless unless you provide memory.
